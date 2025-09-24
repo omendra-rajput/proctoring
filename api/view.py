@@ -4,7 +4,8 @@ from pymongo import MongoClient
 import json
 
 # Initialize MongoDB client using Vercel environment variable
-MONGO_URI = os.environ.get("mongodb+srv://omendra_rajput:<omendra231>@proctoring.5vljhsx.mongodb.net/?retryWrites=true&w=majority&appName=Proctoring")
+# This line now correctly fetches the environment variable named "MONGODB_URI"
+MONGO_URI = os.environ.get("MONGODB_URI")
 client = MongoClient(MONGO_URI)
 db = client.get_database("proctoring_db")
 collection = db.get_collection("live_stream")
