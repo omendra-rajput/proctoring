@@ -8,7 +8,7 @@ import pygetwindow as gw
 
 # Vercel upload API URL
 # REPLACE WITH YOUR DEPLOYED VERSEL URL
-VERCEL_API_URL = "https://proctoring-sandy.vercel.app/api/upload"
+VERCEL_API_URL = "https://proctoring-delta.vercel.app/api/upload"
 
 FPS = 15  # Frames per second
 
