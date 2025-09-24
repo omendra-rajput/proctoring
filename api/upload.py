@@ -10,11 +10,11 @@ client = MongoClient(MONGO_URI)
 db = client.get_database("proctoring_db")
 collection = db.get_collection("live_stream")
 
-def handler(request, response):
+def handler(request):
     try:
         data = json.loads(request.body)
         if "image" not in data:
-            return response.json({"error": "No image provided"}, status=400)
+            return {"error": "No image provided"}, 400
 
         img_base64 = data["image"]
         doc_id = "latest_frame"
@@ -26,8 +26,8 @@ def handler(request, response):
             upsert=True
         )
 
-        return response.json({"success": True, "message": "Image uploaded to MongoDB"}, status=200)
+        return {"success": True, "message": "Image uploaded to MongoDB"}, 200
 
     except Exception as e:
         # It's important to provide a detailed error message for debugging
-        return response.json({"error": str(e)}, status=500)
+        return {"error": str(e)}, 500
