@@ -1,1 +1,7 @@
 pymongo
+requests
+mss
+opencv-python
+numpy
+pygetwindow
+Pillow
