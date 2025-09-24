@@ -15,5 +15,6 @@
       "src": "/api/view",
       "dest": "/api/view.py"
     }
-  ]
+  ],
+  "installCommand": "pip install -r requirements.txt"
 }
