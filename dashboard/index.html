@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administrator Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8;
+        }
+        .stream-container {
+            aspect-ratio: 16 / 9;
+            width: 100%;
+            height: auto;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen p-6">
+    <div class="bg-white p-8 rounded-3xl shadow-2xl max-w-5xl w-full">
+        <div class="flex items-center justify-between mb-6">
+            <h1 class="text-3xl font-bold text-gray-800">Administrator Dashboard</h1>
+            <span id="status" class="inline-flex items-center px-3 py-1 text-sm font-semibold rounded-full bg-green-100 text-green-800">
+                <span class="w-2 h-2 mr-2 bg-green-500 rounded-full animate-pulse"></span>
+                Connected
+            </span>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Live Stream Section -->
+            <div class="md:col-span-2 lg:col-span-2">
+                <div class="bg-gray-800 rounded-xl overflow-hidden shadow-inner">
+                    <img id="live-stream-image" class="stream-container object-contain" src="https://placehold.co/1280x720/E2E8F0/A0AEC0?text=Waiting+for+stream..." alt="Live Screen Stream">
+                </div>
+                <p class="text-center text-gray-500 text-xs mt-2">Live stream from the client. The image refreshes every 100 milliseconds.</p>
+            </div>
+
+            <!-- Dashboard Info Section -->
+            <div class="space-y-4">
+                <div class="bg-gray-50 p-4 rounded-xl shadow-md">
+                    <h2 class="text-xl font-semibold text-gray-700 mb-2">Connection Info</h2>
+                    <p class="text-sm text-gray-600"><span class="font-bold">Client IP:</span> <span id="client-ip">N/A</span></p>
+                    <p class="text-sm text-gray-600"><span class="font-bold">Last Update:</span> <span id="last-update">N/A</span></p>
+                    <p class="text-sm text-gray-600"><span class="font-bold">Frame Rate:</span> <span id="fps-counter">N/A</span></p>
+                </div>
+
+                <div class="bg-gray-50 p-4 rounded-xl shadow-md">
+                    <h2 class="text-xl font-semibold text-gray-700 mb-2">Instructions</h2>
+                    <ol class="list-decimal list-inside text-sm text-gray-600 space-y-1">
+                        <li>Ensure the client script is running on the monitored machine.</li>
+                        <li>Verify that the Vercel API is correctly deployed and accessible.</li>
+                        <li>Minimize the client's viewer window to prevent the mirroring effect.</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const imageElement = document.getElementById('live-stream-image');
+        const statusElement = document.getElementById('status');
+        const lastUpdateElement = document.getElementById('last-update');
+        const fpsCounterElement = document.getElementById('fps-counter');
+        
+        // This is the URL to your deployed `api/view.py` serverless function
+        // You will need to replace "your-vercel-project.vercel.app" with your actual domain.
+        const viewApiUrl = "https://your-vercel-project.vercel.app/api/view";
+        
+        let lastFetchTime = performance.now();
+        let frameCount = 0;
+
+        async function fetchImage() {
+            try {
+                const response = await fetch(viewApiUrl);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.image) {
+                        imageElement.src = `data:image/jpeg;base64,${data.image}`;
+                        
+                        // Update status and info
+                        statusElement.className = "inline-flex items-center px-3 py-1 text-sm font-semibold rounded-full bg-green-100 text-green-800";
+                        statusElement.innerHTML = '<span class="w-2 h-2 mr-2 bg-green-500 rounded-full animate-pulse"></span>Connected';
+                        lastUpdateElement.textContent = new Date().toLocaleTimeString();
+                        
+                        // Calculate FPS
+                        frameCount++;
+                        const currentTime = performance.now();
+                        const elapsed = (currentTime - lastFetchTime) / 1000;
+                        if (elapsed >= 1) {
+                            const fps = (frameCount / elapsed).toFixed(1);
+                            fpsCounterElement.textContent = `${fps} FPS`;
+                            lastFetchTime = currentTime;
+                            frameCount = 0;
+                        }
+                    }
+                } else {
+                    console.error("Failed to fetch image:", response.status, response.statusText);
+                    statusElement.className = "inline-flex items-center px-3 py-1 text-sm font-semibold rounded-full bg-red-100 text-red-800";
+                    statusElement.innerHTML = '<span class="w-2 h-2 mr-2 bg-red-500 rounded-full"></span>Disconnected';
+                }
+            } catch (error) {
+                console.error("Error fetching image:", error);
+                statusElement.className = "inline-flex items-center px-3 py-1 text-sm font-semibold rounded-full bg-red-100 text-red-800";
+                statusElement.innerHTML = '<span class="w-2 h-2 mr-2 bg-red-500 rounded-full"></span>Disconnected';
+                lastUpdateElement.textContent = "N/A";
+            }
+        }
+
+        // Fetch the image every 100 milliseconds
+        setInterval(fetchImage, 10000);
+    </script>
+</body>
+</html>
