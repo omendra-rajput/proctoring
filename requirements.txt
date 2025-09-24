@@ -1,4 +1,1 @@
-mss
-opencv-python
-numpy
-requests
+pymongo
